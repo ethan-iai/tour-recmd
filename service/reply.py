@@ -64,7 +64,7 @@ class ReplyHandler(object):
         
     def _text_msg_handler(self, msg):
         kwargs = self._init_kwargs(msg)
-        kwargs['Content'] = "test"  # interface attached here
+        kwargs['Content'] = "test"  # TODO: interface attached here
         print(kwargs)
         return self._dbg(kwargs)
 

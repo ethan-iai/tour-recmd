@@ -1,5 +1,5 @@
 """
-TODO: add docs here 
+class for messages(DTO) 
 """
 
 class Msg(object):
