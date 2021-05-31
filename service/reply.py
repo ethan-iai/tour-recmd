@@ -65,20 +65,7 @@ class ReplyHandler(object):
     def _text_msg_handler(self, msg):
         kwargs = self._init_kwargs(msg)
         kwargs['Content'] = "test"  # TODO: interface attached here
-        print(kwargs)
-        return self._dbg(kwargs)
-
-    def _dbg(self, kwargs):
-        XmlForm = """
-            <xml>
-                <ToUserName><![CDATA[{ToUserName}]]></ToUserName>
-                <FromUserName><![CDATA[{FromUserName}]]></FromUserName>
-                <CreateTime>{CreateTime}</CreateTime>
-                <MsgType><![CDATA[text]]></MsgType>
-                <Content><![CDATA[{Content}]]></Content>
-            </xml>
-            """
-        return XmlForm.format(**kwargs)
+        return self._type_xmlform_map['text'].format(**kwargs)
 
     def _voice_msg_handler(self, msg):
         pass
