@@ -33,7 +33,6 @@ class LocationMsg(Msg):
         self.Label = xmlData.find('Label').text
         
 class VoiceMsg(Msg):
-
     def __init__(self, xmlData):
         super().__init__(self, xmlData)
         self.MediaId = xmlData.find('MediaId').text 
