@@ -13,7 +13,7 @@ class ReceiveHandler(object):
     
     def parse_xml(self, web_data):
         if len(web_data) == 0:
-            return None
+            return None, None
         xmlData = ET.fromstring(web_data)
         msg_type = xmlData.find('MsgType').text
         try:
