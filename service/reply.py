@@ -26,19 +26,6 @@ class ReplyHandler(object):
                         </Image>
                     </xml>
                     """,
-            'location' : \
-                    """
-                    <xml>
-                        <ToUserName><![CDATA[{ToUserName}]]></ToUserName>
-                        <FromUserName><![CDATA[{FromUserName}]]></FromUserName>
-                        <CreateTime>{CreateTime}</CreateTime>
-                        <MsgType><![CDATA[location]]></MsgType>
-                        <Location_X>{Location_X}</Location_X>
-                        <Location_Y>{Location_Y}}</Location_Y>
-                        <Scale>{Scale}</Scale>
-                        <Label><![CDATA[{Label}]]></Label>
-                    </xml>
-                    """,
             'voice' : \
                     """
                     <xml>
@@ -46,8 +33,43 @@ class ReplyHandler(object):
                         <FromUserName><![CDATA[{FromUserName}]]></FromUserName>
                         <CreateTime>{CreateTime}</CreateTime>
                         <MsgType><![CDATA[voice]]></MsgType>
-                        <MediaId><![CDATA[{MediaId}]]></MediaId>
-                        <Format><![CDATA[{Format}]]></Format>
+                        <Voice>
+                            <MediaId><![CDATA[{MediaId}]]></MediaId>
+                        </Voice>
+                    </xml>
+                    """,
+            'music' : \
+                    """
+                    <xml>
+                        <ToUserName><![CDATA[{ToUserName}]]></ToUserName>
+                        <FromUserName><![CDATA[{FromUserName}]]></FromUserName>
+                        <CreateTime>{CreateTime}</CreateTime>
+                        <MsgType><![CDATA[music]]></MsgType>
+                        <Music>
+                            <Title><![CDATA[{Title}]]></Title>
+                            <Description><![CDATA[{Description}]]></Description>
+                            <MusicUrl><![CDATA[{MusicURL}]]></MusicUrl>
+                            <HQMusicUrl><![CDATA[{HQMusicURL}]]></HQMusicUrl>
+                            <ThumbMediaId><![CDATA[{MediaId}]]></ThumbMediaId>
+                        </Music>
+                    </xml>
+                    """,
+            'news' : \
+                    """
+                    <xml>
+                        <ToUserName><![CDATA[{ToUserName}]]></ToUserName>
+                        <FromUserName><![CDATA[{FromUserName}]]></FromUserName>
+                        <CreateTime>{CreateTime}</CreateTime>
+                        <MsgType><![CDATA[news]]></MsgType>
+                        <ArticleCount>1</ArticleCount>
+                        <Articles>
+                            <item>
+                            <Title><![CDATA[{Title}]]></Title>
+                            <Description><![CDATA[{Description}]]></Description>
+                            <PicUrl><![CDATA[{PicUrl}]]></PicUrl>
+                            <Url><![CDATA[{Url}]]></Url>
+                            </item>
+                        </Articles>
                     </xml>
                     """,
         }
