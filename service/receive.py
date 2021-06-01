@@ -18,6 +18,6 @@ class ReceiveHandler(object):
         msg_type = xmlData.find('MsgType').text
         try:
             return msg_type, self._type_class_map[msg_type](xmlData)
-        except KeyError as e:
+        except KeyError:
             return None, None
 
