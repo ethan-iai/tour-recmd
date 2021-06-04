@@ -1,6 +1,6 @@
 import hashlib
-import reply
-import receive
+from cntr.service import reply
+from cntr.service import receive
 import web
 
 

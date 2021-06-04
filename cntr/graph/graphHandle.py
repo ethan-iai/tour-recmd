@@ -1,7 +1,7 @@
 import py2neo
 import jieba
-import eventlet
-import utils
+
+from cntr.graph import utils
 
 TIME_OUT = 10
 
@@ -16,7 +16,10 @@ class KnowledgeGraphHandler(object):
             self._type_list = f.read().splitlines()
 
         with open(province_path, 'r', encoding='UTF-8') as f:
-            f = self._province_list = f.read().splitlines()
+            self._province_list = f.read().splitlines()
+
+        with open(name_path, 'r', encoding='utf-8') as f:
+            self._name_list = f.read().splitlines()
 
         graph = py2neo.Graph(
             user="neo4j",
@@ -60,10 +63,10 @@ class KnowledgeGraphHandler(object):
                 if(dis<100):
                     des[d['name']]=dis
 
-        des=sorted(des.items(), key=lambda kv: (kv[1], kv[0]))
+        ord_des=sorted(des.items(), key=lambda kv: (kv[1], kv[0]))
         des_re= ' '
-        for src in des:
-            des_re= des_re + str(src) + ' \n '
+        for d in ord_des:
+            des_re= des_re + d[0] + ":" + str(d[1]) + "km" + ' \n '
         return des_re
 
     def inquire_by_province_return_Rselector(self, province):
@@ -99,23 +102,22 @@ class KnowledgeGraphHandler(object):
         :param type:
         :return:返回某省或全国的(rse==None)的同类景区名称(list)
         """
+        if not rse:
+            N_type = self._N_selector.match("类型", name=type).first()
+            R_des = self._R_selector.match((N_type,), "include")
+            t_des =set()
 
-        N_type = self._N_selector.match("类型", name=type).first()
-        R_des = self._R_selector.match((N_type,), "include")
-        t_des =set()
-
-        for r in R_des:
-            t_des.add(r.end_node['name']+'\n')
-        
-        if rse ==None:
+            for r in R_des:
+                t_des.add(r.end_node['name']+'\n')
             return t_des
         else:
+            des = set()
             for r in rse:
-                N_province = r.start_node['name']
-                p_des=self.inquire_by_province_return_list(N_province)
-                des = t_des & p_des
-                return des
-
+                Node_des = r.end_node
+                des_type_name = self._R_selector.match((Node_des, ), "名称2类型").first().end_node['name']
+                if des_type_name == type:
+                    des.add(r.end_node['name'] + '\n')
+            return des
 
 
     def recommand_by_ticket(self, ticket,rse):
@@ -179,7 +181,7 @@ class KnowledgeGraphHandler(object):
         characteristic= (self._R_selector.match((node_des,), "介绍").first()).end_node['name']
         monthly_sales= (self._R_selector.match((node_des,), "月销量").first()).end_node['name']
         picture = (self._R_selector.match((node_des,), "图片").first()).end_node['name']
-        des="名称:"+ mc+"\n类型:"+type+"\n地址:"+location+"\n级别:"+level+"\n票价:"+ticket+"\n月销量:"+monthly_sales+"\n介绍:"+characteristic+"\n图片:"+picture
+        des="名称:"+ '#' + mc +"\n类型:"+type+"\n地址:"+location+"\n级别:"+level+"\n票价:"+ticket+"\n月销量:"+monthly_sales+"\n介绍:"+characteristic+"\n图片:"+picture
         return des
 
 
@@ -198,10 +200,11 @@ class KnowledgeGraphHandler(object):
         if "旁边" in words or "附近" in words:
             r=self.inquire_min_distance(words[0])
             return r
-        elif "详细信息" in words:
-            r=self.print_detailed_info(words[0])
-            return r
-        elif "票价" in words:
+        for word in words:
+            if "详细信息" == word or word in self._name_list:
+                r=self.print_detailed_info(words[0])
+                return r
+        if "票价" in words:
             input_ticket=""
             for i in input:  # 将字符串进行遍历
                 if str.isdigit(i):  # 判断i是否为数字，如果“是”返回True，“不是”返回False
@@ -243,11 +246,12 @@ class KnowledgeGraphHandler(object):
 
 
 if __name__ == '__main__':
+    from cntr.utils import get_data_path
 
     graph_handler = KnowledgeGraphHandler(
-        province_path=r'/home/ethanng/demo/data/province.txt', 
-        type_path=r'/home/ethanng/demo/data/type.txt',
-        name_path=r'/home/ethanng/demo/data/name.txt'
+        province_path=get_data_path('data/province.txt'),
+        type_path=get_data_path('data/type.txt'),
+        name_path=get_data_path('data/name.txt')
     )
 
     while True:

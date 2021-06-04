@@ -1,4 +1,6 @@
+from cntr.utils import get_data_path
 import time
+from cntr.graph import KnowledgeGraphHandler
 
 class ReplyHandler(object):
 
@@ -76,6 +78,12 @@ class ReplyHandler(object):
         self._type_handler_map = {
             'text' : self._text_msg_handler,
         }
+        
+        self._graph_handler = KnowledgeGraphHandler(
+            province_path=get_data_path('data/province.txt'),
+            type_path=get_data_path('data/type.txt'),
+            name_path=get_data_path('data/name.txt')
+        )
 
     def _init_kwargs(self, msg):
         kwargs = dict()
@@ -86,7 +94,8 @@ class ReplyHandler(object):
         
     def _text_msg_handler(self, msg):
         kwargs = self._init_kwargs(msg)
-        kwargs['Content'] = "test"  # TODO: interface attached here
+        # TODO: interface attached here
+        kwargs['Content'] = self._graph_handler(msg.Content.decode('utf-8'))     
         return self._type_xmlform_map['text'].format(**kwargs)
 
     def _voice_msg_handler(self, msg):

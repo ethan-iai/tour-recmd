@@ -1,6 +1,6 @@
 import web
 
-from handle import Handle
+from cntr.service import Handle
 
 urls = (
     '/wx', 'Handle',

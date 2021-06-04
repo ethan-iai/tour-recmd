@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from base import TextMsg, ImageMsg, LocationMsg, VoiceMsg
+from cntr.service.base import TextMsg, ImageMsg, LocationMsg, VoiceMsg
 
 class ReceiveHandler(object):
     

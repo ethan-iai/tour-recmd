@@ -1,4 +1,4 @@
-from basic import Basic
+from .basic import Basic
 import urllib3
 import poster3
 
