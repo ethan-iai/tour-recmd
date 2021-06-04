@@ -12,15 +12,15 @@ class KnowledgeGraphHandler(object):
         jieba.load_userdict(name_path)
         jieba.load_userdict(type_path)
 
-        file_1 = open('type.txt', 'r', encoding='UTF-8')
-        self._type_list = file_1.read().splitlines()
+        with open(type_path, 'r', encoding='UTF-8') as f:
+            self._type_list = f.read().splitlines()
 
-        file_2 = open('province.txt', 'r', encoding='UTF-8')
-        self._province_list = file_2.read().splitlines()
+        with open(province_path, 'r', encoding='UTF-8') as f:
+            f = self._province_list = f.read().splitlines()
 
         graph = py2neo.Graph(
-            "http://localhost:7474",
-            password="200171"
+            user="neo4j",
+            password="123456"
         )
 
         self._N_selector = py2neo.NodeMatcher(graph)
@@ -185,8 +185,8 @@ class KnowledgeGraphHandler(object):
 
     def _classify(self, input):
         words = list(jieba.cut(input, cut_all=False))# paddle模式
-        print("jieba分词结果:")
-        print(words)
+        # print("jieba分词结果:")
+        # print(words)
         province_rselector = None #p_r是省份到景区名称的关系类型
         guess_flag = 0
         for word in words:
@@ -243,15 +243,12 @@ class KnowledgeGraphHandler(object):
 
 
 if __name__ == '__main__':
-	from graph import KnowledgeGraphHandler
 
-if __name__ == '__main__':
     graph_handler = KnowledgeGraphHandler(
-        province_path = r'../data/province.txt',
-        type_path = r'../data/type.txt',
-        name_path = r'../name.txt'
+        province_path=r'/home/ethanng/demo/data/province.txt', 
+        type_path=r'/home/ethanng/demo/data/type.txt',
+        name_path=r'/home/ethanng/demo/data/name.txt'
     )
 
-    line = input()
-    if line and len(line) > 0:
-        print(graph_handler(line))
+    while True:
+        print(graph_handler(input()))
