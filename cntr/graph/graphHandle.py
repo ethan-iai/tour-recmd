@@ -5,12 +5,16 @@ from cntr.graph import utils
 
 TIME_OUT = 10
 
+def jieba_initialize(name_path, type_path):
+    jieba.load_userdict(name_path)
+    jieba.load_userdict(type_path)
+
 
 class KnowledgeGraphHandler(object):
 
     def __init__(self, province_path, type_path, name_path):
-        jieba.load_userdict(name_path)
-        jieba.load_userdict(type_path)
+        # jieba.load_userdict(name_path)
+        # jieba.load_userdict(type_path)
 
         with open(type_path, 'r', encoding='UTF-8') as f:
             self._type_list = f.read().splitlines()
@@ -233,8 +237,8 @@ class KnowledgeGraphHandler(object):
         return None
 
     def __call__(self, input):
-        # eventlet.monkey_patch()  # FIXME: place in right postion
-        # with eventlet.Timeout(TIME_OUT, False):
+        # FIXME: return string `str`, 
+        # len(str.encode('utf-8')) shall be less 1024
         des_list = self._classify(input)
         if isinstance(des_list, str):
             return des_list
