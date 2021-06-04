@@ -2,7 +2,7 @@ import hashlib
 from cntr.service import reply
 from cntr.service import receive
 import web
-
+import time
 
 class Handle(object):
     def __init__(self):
@@ -39,10 +39,15 @@ class Handle(object):
 
     def POST(self):
         try:
+            print('[DBG] handle post')
             webData = web.data()
-            print("Handle Post webdata is ", webData)
+            # print("Handle Post webdata is ", webData)
             #后台打日志
             recType, recMsg = self._receive_hadler.parse_xml(webData)
-            return self._reply_handler(recType, recMsg)
+            ret = self._reply_handler(recType, recMsg)
+            if not ret:
+                time.sleep(10) 
+            print("[DBG] message with length to sent: {}".format(ret))
+            return ret
         except Exception as e:
             return e.args

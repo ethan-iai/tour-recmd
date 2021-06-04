@@ -1,6 +1,8 @@
-from cntr.utils import get_data_path
+import web
 import time
+
 from cntr.graph import KnowledgeGraphHandler
+from cntr.utils import get_data_path
 
 class ReplyHandler(object):
 
@@ -111,10 +113,22 @@ class ReplyHandler(object):
         return "success"
 
     def __call__(self, msgType, msg):
-        try:
-            return self._type_handler_map[msgType](msg)
-        except KeyError:
-            return self._default_handler()
-        except Exception as e:
-            print(e.args)
-            return self._default_handler()
+        if msg.MsgId in web.ctx.globals.reply_msg_cache:
+            print('[DBG] entry found')
+            return web.ctx.globals.reply_msg_cache[msg.MsgId]    
+        else:
+            try:
+                web.ctx.globals.reply_msg_cache[msg.MsgId] =\
+                    self._type_handler_map[msgType](msg)
+                print('[DBG] entry inserted')
+            except KeyError:
+                web.ctx.globals.reply_msg_cache[msg.MsgId] =\
+                    self._default_handler()
+            except Exception as e:
+                print(e.args)
+                web.ctx.globals.reply_msg_cache[msg.MsgId] =\
+                    self._default_handler()
+            # print(web.ctx.globals.reply_msg_cache)
+            print('[DBG] entry not found')
+            # return self._reply_msg_cache.pop(msg.MsgId)
+
