@@ -251,6 +251,12 @@ class KnowledgeGraphHandler(object):
 
 if __name__ == '__main__':
     from cntr.utils import get_data_path
+    from cntr.graph import jieba_initialize
+
+    jieba_initialize(
+        type_path=get_data_path('data/type.txt'),
+        name_path=get_data_path('data/name.txt')
+    )
 
     graph_handler = KnowledgeGraphHandler(
         province_path=get_data_path('data/province.txt'),
@@ -260,3 +266,8 @@ if __name__ == '__main__':
 
     while True:
         print(graph_handler(input()))
+        # _str = graph_handler(input())
+        # print(_str)
+        # print('[DBG] after:')
+        # print(str_cut(_str, 1024))
+

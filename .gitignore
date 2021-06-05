@@ -133,4 +133,4 @@ dmypy.json
 run.sh
 
 # log
-*.out
+.out
