@@ -123,48 +123,64 @@ class KnowledgeGraphHandler(object):
                     des.add(r.end_node['name'] + '\n')
             return des
 
-
-    def recommand_by_ticket(self, ticket,rse):
+    def recommand_by_ticket(self, ticket, rse, flag):
         """
         #TODO:触发词:票价 关键词:数字
         :param ticket:
+               flag: flag==1 大于
         :return:   返回景区名称和票价字典(dict)
         """
-        des=set()
-        if rse!=None:
+        des = set()
+        if rse != None:
             for r in rse:
-                d= r.end_node
-                R_ticket = self._R_selector.match((d,),"票价").first()
-                char_ticket =R_ticket.end_node['name']
-                d_ticket=float(char_ticket)
-                if d_ticket<=ticket:
-                    des.add(d['name']+' 票价:'+char_ticket+'\n')
+                d = r.end_node
+                R_ticket = self._R_selector.match((d,), "票价").first()
+                char_ticket = R_ticket.end_node['name']
+                d_ticket = float(char_ticket)
+                if flag == 1:
+                    if d_ticket > ticket and d_ticket !=99999:
+                        des.add(d['name'] + ' 票价:' + char_ticket + '\n')
+                elif flag == 0:
+                    if d_ticket <= ticket:
+                        des.add(d['name'] + ' 票价:' + char_ticket + '\n')
         else:
             for d in self._all_des:
-                R_ticket = self._R_selector.match((d,),"票价").first()
-                char_ticket =R_ticket.end_node['name']
-                d_ticket=float(char_ticket)
-                if d_ticket<=ticket:
-                    des.add(d['name']+' 票价:'+char_ticket+'\n')
+                R_ticket = self._R_selector.match((d,), "票价").first()
+                char_ticket = R_ticket.end_node['name']
+                d_ticket = float(char_ticket)
+                if flag == 1:
+                    if d_ticket > ticket:
+                        des.add(d['name'] + ' 票价:' + char_ticket + '\n')
+                elif flag == 0:
+                    if d_ticket <= ticket:
+                        des.add(d['name'] + ' 票价:' + char_ticket + '\n')
         return des
 
-    def recommand_by_sales(self, sales,rse):
-        des=set()
-        if rse !=None:
+    def recommand_by_sales(self, sales, rse, flag):
+        des = set()
+        if rse != None:
             for r in rse:
-                d =r.end_node
-                R_sales = self._R_selector.match((d,),"月销量").first()
-                char_sales =R_sales.end_node['name']
-                d_sales=int(char_sales)
-                if d_sales>=sales:
-                    des.add(d['name'] + ' 月销量:' + char_sales + '\n')
-        else:
-            for d in self._all_des_all_des:
+                d = r.end_node
                 R_sales = self._R_selector.match((d,), "月销量").first()
                 char_sales = R_sales.end_node['name']
                 d_sales = int(char_sales)
-                if d_sales >= sales:
-                    des.add(d['name'] + ' 月销量:' + char_sales + '\n')
+                if flag == 1:
+                    if d_sales >= sales:
+                        des.add(d['name'] + ' 月销量:' + char_sales + '\n')
+                elif flag == 0:
+                    if d_sales <= sales:
+                        des.add(d['name'] + ' 票价:' + char_sales + '\n')
+        else:
+            for d in self._all_des:
+                R_sales = self._R_selector.match((d,), "月销量").first()
+                char_sales = R_sales.end_node['name']
+                d_sales = int(char_sales)
+                if flag == 1:
+                    if d_sales >= sales:
+                        des.add(d['name'] + ' 月销量:' + char_sales + '\n')
+                elif flag == 0:
+                    if d_sales <= sales:
+                        des.add(d['name'] + ' 票价:' + char_sales + '\n')
         return des
 
     def print_detailed_info(self, mc):
@@ -209,18 +225,26 @@ class KnowledgeGraphHandler(object):
                 r=self.print_detailed_info(words[0])
                 return r
         if "票价" in words:
-            input_ticket=""
+            input_ticket = ""
             for i in input:  # 将字符串进行遍历
                 if str.isdigit(i):  # 判断i是否为数字，如果“是”返回True，“不是”返回False
                     input_ticket += i
-            r=self.recommand_by_ticket(float(input_ticket),province_rselector)
+            if "大于" in words or "高于" in words or "以上" in words:
+                flag = 1
+            else:
+                flag = 0
+            r = self.recommand_by_ticket(float(input_ticket), province_rselector, flag)
             return r
         elif "月销量" in words or "销量" in words:
             sales = ""
             for i in input:  # 将字符串进行遍历
                 if str.isdigit(i):  # 判断i是否为数字，如果“是”返回True，“不是”返回False
                     sales += i
-            r=self.recommand_by_sales(float(sales),province_rselector)
+            if "大于" in words or "高于" in words or "以上" in words:
+                flag = 1
+            else:
+                flag = 0
+            r = self.recommand_by_sales(float(sales), province_rselector, flag)
             return r
         for word in words:
             if word in self._type_list:
@@ -251,8 +275,7 @@ class KnowledgeGraphHandler(object):
 
 if __name__ == '__main__':
     from cntr.utils import get_data_path
-    from cntr.graph import jieba_initialize
-
+    
     jieba_initialize(
         type_path=get_data_path('data/type.txt'),
         name_path=get_data_path('data/name.txt')
@@ -266,8 +289,3 @@ if __name__ == '__main__':
 
     while True:
         print(graph_handler(input()))
-        # _str = graph_handler(input())
-        # print(_str)
-        # print('[DBG] after:')
-        # print(str_cut(_str, 1024))
-
