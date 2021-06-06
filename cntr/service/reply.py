@@ -5,7 +5,7 @@ from cntr.graph import KnowledgeGraphHandler
 from cntr.utils import get_data_path
 from cntr.service.utils import str_cut
 
-MAX_WORD = 1024
+MAX_WORD = 720
 
 class ReplyHandler(object):
 
@@ -87,7 +87,8 @@ class ReplyHandler(object):
         self._graph_handler = KnowledgeGraphHandler(
             province_path=get_data_path('data/province.txt'),
             type_path=get_data_path('data/type.txt'),
-            name_path=get_data_path('data/name.txt')
+            name_path=get_data_path('data/name.txt'),
+            synonym_path=get_data_path('data/synonym.txt')
         )
 
     def _init_kwargs(self, msg):
@@ -100,6 +101,9 @@ class ReplyHandler(object):
     def _text_msg_handler(self, msg):
         kwargs = self._init_kwargs(msg)
         # TODO: interface attached here
+        #ret = kwargs['Content'] = str_cut(self._graph_handler(msg.Content.decode('utf-8')), MAX_WORD)     
+        # print('[DBG] content len: ' + str(len(ret.encode('utf-8'))))
+        # kwargs['Content'] = ret
         kwargs['Content'] = str_cut(self._graph_handler(msg.Content.decode('utf-8')), MAX_WORD)     
         return self._type_xmlform_map['text'].format(**kwargs)
 
@@ -117,13 +121,14 @@ class ReplyHandler(object):
 
     def __call__(self, msgType, msg):
         if msg.MsgId in web.ctx.globals.reply_msg_cache:
-            print('[DBG] entry found')
+            # print('[DBG] entry found')
+            print('[INFO] reply to MsgId:{} success.'.format(msg.MsgId))
             return web.ctx.globals.reply_msg_cache[msg.MsgId]    
         else:
             try:
                 web.ctx.globals.reply_msg_cache[msg.MsgId] =\
                     self._type_handler_map[msgType](msg)
-                print('[DBG] entry inserted')
+                # print('[DBG] entry inserted')
             except KeyError:
                 web.ctx.globals.reply_msg_cache[msg.MsgId] =\
                     self._default_handler()
@@ -131,7 +136,5 @@ class ReplyHandler(object):
                 print(e.args)
                 web.ctx.globals.reply_msg_cache[msg.MsgId] =\
                     self._default_handler()
-            # print(web.ctx.globals.reply_msg_cache)
-            print('[DBG] entry not found')
-            # return self._reply_msg_cache.pop(msg.MsgId)
+            # print('[DBG] entry not found')
 

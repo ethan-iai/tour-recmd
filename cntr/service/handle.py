@@ -39,7 +39,7 @@ class Handle(object):
 
     def POST(self):
         try:
-            print('[DBG] handle post')
+            # print('[DBG] handle post')
             webData = web.data()
             # print("Handle Post webdata is ", webData)
             #后台打日志
@@ -47,7 +47,6 @@ class Handle(object):
             ret = self._reply_handler(recType, recMsg)
             if not ret:
                 time.sleep(10) 
-            print("[DBG] message with length to sent: {}".format(ret))
             return ret
         except Exception as e:
             return e.args
