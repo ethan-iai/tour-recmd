@@ -1,1 +1,0 @@
-sudo ~/anaconda3/envs/kg-38/bin/python ./cntr/service/main.py 80
