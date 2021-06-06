@@ -13,7 +13,7 @@ def jieba_initialize(name_path, type_path):
 
 class KnowledgeGraphHandler(object):
 
-    def __init__(self, province_path, type_path, name_path):
+    def __init__(self, province_path, type_path, name_path, synonym_path):
         # jieba.load_userdict(name_path)
         # jieba.load_userdict(type_path)
 
@@ -30,6 +30,8 @@ class KnowledgeGraphHandler(object):
             user="neo4j",
             password="123456"
         )
+
+        self._synonym_handler = utils.SynonymHandler(synonym_path)
 
         self._N_selector = py2neo.NodeMatcher(graph)
         self._R_selector = py2neo.RelationshipMatcher(graph)
@@ -271,7 +273,7 @@ class KnowledgeGraphHandler(object):
             words = jieba.analyse.extract_tags(input, topK=20, withWeight=False, allowPOS=())
         else:
             words = list(jieba.cut(input, cut_all=False))
-        print(words)
+        # print(words)
         # print("jieba分词结果:")
         # print(words)
         province_rselector = None #p_r是省份到景区名称的关系类型
@@ -336,8 +338,8 @@ class KnowledgeGraphHandler(object):
         return None
 
     def __call__(self, input):
-        # len(str.encode('utf-8')) shall be less 1024
-        des_list = self._classify(input)
+        # len(ret_str.encode('utf-8')) shall be less 1024
+        des_list = self._classify(self._synonym_handler(input))
         if isinstance(des_list, str):
             return des_list
         elif isinstance(des_list, set):
@@ -358,8 +360,9 @@ if __name__ == '__main__':
     graph_handler = KnowledgeGraphHandler(
         province_path=get_data_path('data/province.txt'),
         type_path=get_data_path('data/type.txt'),
-        name_path=get_data_path('data/name.txt')
+        name_path=get_data_path('data/name.txt'),
+        synonym_path=get_data_path('data/synonym.txt')
     )
 
     while True:
-        print(graph_handler(utils.replaceSynonymWords(input())))
+        print(graph_handler(input()))
