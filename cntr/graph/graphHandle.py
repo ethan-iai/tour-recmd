@@ -1,5 +1,6 @@
 import py2neo
 import jieba
+import jieba.analyse
 
 from cntr.graph import utils
 
@@ -34,9 +35,6 @@ class KnowledgeGraphHandler(object):
         self._R_selector = py2neo.RelationshipMatcher(graph)
 
         self._all_des = self._N_selector.match("名称")
-
-
-
 
     def inquire_min_distance(self, mc):
         """
@@ -123,65 +121,128 @@ class KnowledgeGraphHandler(object):
                     des.add(r.end_node['name'] + '\n')
             return des
 
-    def recommand_by_ticket(self, ticket, rse, flag):
+    def recommand_by_ticket(self, ticket, rse, flag,type):
         """
         #TODO:触发词:票价 关键词:数字
         :param ticket:
+               rse:省份的(R_seceletor)
                flag: flag==1 大于
         :return:   返回景区名称和票价字典(dict)
         """
-        des = set()
-        if rse != None:
-            for r in rse:
-                d = r.end_node
-                R_ticket = self._R_selector.match((d,), "票价").first()
-                char_ticket = R_ticket.end_node['name']
-                d_ticket = float(char_ticket)
-                if flag == 1:
-                    if d_ticket > ticket and d_ticket !=99999:
-                        des.add(d['name'] + ' 票价:' + char_ticket + '\n')
-                elif flag == 0:
-                    if d_ticket <= ticket:
-                        des.add(d['name'] + ' 票价:' + char_ticket + '\n')
-        else:
-            for d in self._all_des:
-                R_ticket = self._R_selector.match((d,), "票价").first()
-                char_ticket = R_ticket.end_node['name']
-                d_ticket = float(char_ticket)
-                if flag == 1:
-                    if d_ticket > ticket:
-                        des.add(d['name'] + ' 票价:' + char_ticket + '\n')
-                elif flag == 0:
-                    if d_ticket <= ticket:
-                        des.add(d['name'] + ' 票价:' + char_ticket + '\n')
-        return des
+        if type ==None:
+            des=set()
+            if rse!=None:
+                for r in rse:
+                    d= r.end_node
+                    R_ticket = self._R_selector.match((d,),"票价").first()
+                    char_ticket =R_ticket.end_node['name']
+                    d_ticket=float(char_ticket)
+                    if flag==1:
+                        if d_ticket>ticket and d_ticket!=99999:
+                            des.add(d['name']+' 票价:'+char_ticket+'\n')
+                    elif flag==0:
+                        if d_ticket<=ticket:
+                            des.add(d['name']+' 票价:'+char_ticket+'\n')
+            else:
+                for d in self._all_des:
+                    R_ticket = self._R_selector.match((d,),"票价").first()
+                    char_ticket =R_ticket.end_node['name']
+                    d_ticket=float(char_ticket)
+                    if flag == 1:
+                        if d_ticket > ticket and d_ticket!=99999:
+                            des.add(d['name'] + ' 票价:' + char_ticket + '\n')
+                    elif flag == 0:
+                        if d_ticket <= ticket:
+                            des.add(d['name'] + ' 票价:' + char_ticket + '\n')
+            return des
+        elif type != None:
+            des = set()
+            if rse != None:
+                for r in rse:
+                    d = r.end_node
+                    R_ticket = self._R_selector.match((d,), "票价").first()
+                    char_ticket = R_ticket.end_node['name']
+                    d_ticket = float(char_ticket)
+                    des_type_name = self._R_selector.match((d,), "名称2类型").first().end_node['name']
+                    if des_type_name == type:
+                        if flag == 1:
+                            if d_ticket > ticket and d_ticket != 99999:
+                                des.add(d['name'] + ' 票价:' + char_ticket + '\n')
+                        elif flag == 0:
+                            if d_ticket <= ticket:
+                                des.add(d['name'] + ' 票价:' + char_ticket + '\n')
+            else:
+                for d in self._all_des:
+                    R_ticket = self._R_selector.match((d,), "票价").first()
+                    char_ticket = R_ticket.end_node['name']
+                    d_ticket = float(char_ticket)
+                    des_type_name = self._R_selector.match((d,), "名称2类型").first().end_node['name']
+                    if des_type_name == type:
+                        if flag == 1:
+                            if d_ticket > ticket and d_ticket != 99999:
+                                des.add(d['name'] + ' 票价:' + char_ticket + '\n')
+                        elif flag == 0:
+                            if d_ticket <= ticket:
+                                des.add(d['name'] + ' 票价:' + char_ticket + '\n')
+            return des
 
-    def recommand_by_sales(self, sales, rse, flag):
-        des = set()
-        if rse != None:
-            for r in rse:
-                d = r.end_node
-                R_sales = self._R_selector.match((d,), "月销量").first()
-                char_sales = R_sales.end_node['name']
-                d_sales = int(char_sales)
-                if flag == 1:
-                    if d_sales >= sales:
-                        des.add(d['name'] + ' 月销量:' + char_sales + '\n')
-                elif flag == 0:
-                    if d_sales <= sales:
-                        des.add(d['name'] + ' 票价:' + char_sales + '\n')
-        else:
-            for d in self._all_des:
-                R_sales = self._R_selector.match((d,), "月销量").first()
-                char_sales = R_sales.end_node['name']
-                d_sales = int(char_sales)
-                if flag == 1:
-                    if d_sales >= sales:
-                        des.add(d['name'] + ' 月销量:' + char_sales + '\n')
-                elif flag == 0:
-                    if d_sales <= sales:
-                        des.add(d['name'] + ' 票价:' + char_sales + '\n')
-        return des
+    def recommand_by_sales(self, sales, rse, flag,type):
+        if type == None:
+            des = set()
+            if rse != None:
+                for r in rse:
+                    d = r.end_node
+                    R_sales = self._R_selector.match((d,), "月销量").first()
+                    char_sales = R_sales.end_node['name']
+                    d_sales = int(char_sales)
+                    if flag == 1:
+                        if d_sales >= sales:
+                            des.add(d['name'] + ' 月销量:' + char_sales + '\n')
+                    elif flag == 0:
+                        if d_sales <= sales:
+                            des.add(d['name'] + ' 月销量:' + char_sales + '\n')
+            else:
+                for d in self._all_des:
+                    R_sales = self._R_selector.match((d,), "月销量").first()
+                    char_sales = R_sales.end_node['name']
+                    d_sales = int(char_sales)
+                    if flag == 1:
+                        if d_sales >= sales:
+                            des.add(d['name'] + ' 月销量:' + char_sales + '\n')
+                    elif flag == 0:
+                        if d_sales <= sales:
+                            des.add(d['name'] + ' 月销量:' + char_sales + '\n')
+            return des
+        elif type != None:
+            des = set()
+            if rse != None:
+                for r in rse:
+                    d = r.end_node
+                    R_sales = self._R_selector.match((d,), "月销量").first()
+                    char_sales = R_sales.end_node['name']
+                    d_sales = int(char_sales)
+                    des_type_name = self._R_selector.match((d,), "名称2类型").first().end_node['name']
+                    if des_type_name == type:
+                        if flag == 1:
+                            if d_sales >= sales:
+                                des.add(d['name'] + ' 月销量:' + char_sales + '\n')
+                        elif flag == 0:
+                            if d_sales <= sales:
+                                des.add(d['name'] + ' 月销量:' + char_sales + '\n')
+            else:
+                for d in self._all_des:
+                    R_sales = self._R_selector.match((d,), "月销量").first()
+                    char_sales = R_sales.end_node['name']
+                    d_sales = int(char_sales)
+                    des_type_name = self._R_selector.match((d,), "名称2类型").first().end_node['name']
+                    if des_type_name == type:
+                        if flag == 1:
+                            if d_sales >= sales:
+                                des.add(d['name'] + ' 月销量:' + char_sales + '\n')
+                        elif flag == 0:
+                            if d_sales <= sales:
+                                des.add(d['name'] + ' 月销量:' + char_sales + '\n')
+            return des
 
     def print_detailed_info(self, mc):
         """
@@ -206,7 +267,11 @@ class KnowledgeGraphHandler(object):
 
 
     def _classify(self, input):
-        words = list(jieba.cut(input, cut_all=False))# paddle模式
+        if(len(input)>20):
+            words = jieba.analyse.extract_tags(input, topK=20, withWeight=False, allowPOS=())
+        else:
+            words = list(jieba.cut(input, cut_all=False))
+        print(words)
         # print("jieba分词结果:")
         # print(words)
         province_rselector = None #p_r是省份到景区名称的关系类型
@@ -218,13 +283,13 @@ class KnowledgeGraphHandler(object):
                 break
 
         if "旁边" in words or "附近" in words:
-            r=self.inquire_min_distance(words[0])
-            return r
-        for word in words:
-            if "详细信息" == word or word in self._name_list:
-                r=self.print_detailed_info(words[0])
-                return r
-        if "票价" in words:
+            for word in words:
+                if word in self._name_list:
+                    r=self.inquire_min_distance(word)
+                    return r
+            return "请输入景区的全称,或没有收录此景区,请重新输出,谢谢!!"
+        elif "票价" in words:
+            type = None
             input_ticket = ""
             for i in input:  # 将字符串进行遍历
                 if str.isdigit(i):  # 判断i是否为数字，如果“是”返回True，“不是”返回False
@@ -233,9 +298,13 @@ class KnowledgeGraphHandler(object):
                 flag = 1
             else:
                 flag = 0
-            r = self.recommand_by_ticket(float(input_ticket), province_rselector, flag)
+            for word in words:
+                if word in self._type_list:
+                    type = word
+            r = self.recommand_by_ticket(float(input_ticket), province_rselector, flag, type)
             return r
         elif "月销量" in words or "销量" in words:
+            type = None
             sales = ""
             for i in input:  # 将字符串进行遍历
                 if str.isdigit(i):  # 判断i是否为数字，如果“是”返回True，“不是”返回False
@@ -244,13 +313,19 @@ class KnowledgeGraphHandler(object):
                 flag = 1
             else:
                 flag = 0
-            r = self.recommand_by_sales(float(sales), province_rselector, flag)
+            for word in words:
+                if word in self._type_list:
+                    type = word
+            r = self.recommand_by_sales(float(sales), province_rselector, flag, type)
             return r
         for word in words:
             if word in self._type_list:
                 r=self.inquire_by_type(word,province_rselector)
                 return r
-
+        for word in words:
+            if word in self._name_list:
+                r=self.print_detailed_info(word)
+                return r
 
         #if guess_flag ==0 : print("打扰了,是我太菜了,未能识别您的问题,请您按照使用说明输入[让我看看]")
         if guess_flag == 1:
@@ -261,7 +336,6 @@ class KnowledgeGraphHandler(object):
         return None
 
     def __call__(self, input):
-        # FIXME: return string `str`, 
         # len(str.encode('utf-8')) shall be less 1024
         des_list = self._classify(input)
         if isinstance(des_list, str):
@@ -288,4 +362,4 @@ if __name__ == '__main__':
     )
 
     while True:
-        print(graph_handler(input()))
+        print(graph_handler(utils.replaceSynonymWords(input())))
